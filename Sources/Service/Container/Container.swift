@@ -50,20 +50,8 @@ extension Container {
     /// - throws: Any error finding or initializing the requested service.
     /// - returns: Initialized instance of `T`
     public func make<T>(_ type: T.Type = T.self) throws -> T {
-        // check if we've previously resolved this service
-        if let service = try serviceCache.get(T.self) {
-            return service
-        }
-
-        do {
-            // resolve the service and cache it
-            let service = try unsafeMake(T.self)
-            serviceCache.set(service: service, T.self)
-            return service as! T
-        } catch {
-            // cache the error
-            serviceCache.set(error: error, T.self)
-            throw error
+        try serviceCache.insert(type) {
+            try unsafeMake(type)
         }
     }
 
